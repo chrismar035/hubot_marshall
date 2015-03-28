@@ -1,0 +1,21 @@
+---
+- name: Install base dependencies
+  apt: pkg={{ item }} state=installed update-cache=yes
+  sudo: yes
+  with_items:
+    - build-essential
+    - git-core
+
+- name: Create deploy user
+  sudo: yes
+  user: name=deploy home=/home/deploy group=staff groups=sudo shell=/bin/bash
+
+- name: Add authorized keys for deploy user
+  sudo: yes
+  authorized_key: user=deploy
+                  key="{{ item }}"
+  with_file:
+    - public_keys/chris-macbookpro
+    - public_keys/chris-desktop
+
+- include: iojs.yml

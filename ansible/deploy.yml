@@ -1,0 +1,4 @@
+---
+- hosts: botservers
+  roles:
+    - bot

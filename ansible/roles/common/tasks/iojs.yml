@@ -1,0 +1,53 @@
+---
+# Sourced at https://gist.github.com/mrgamer/00f02ff0d85bd50b88e2
+# Script translated from https://github.com/ralphtheninja/dotfiles/blob/master/install-iojs
+
+- name: io.js | check existance
+  stat: path=~/{{ iojs_filename }}
+  register: iojs
+
+- name: io.js | download package
+  get_url:
+    url=https://iojs.org/dist/v{{ iojs_version }}/{{ iojs_filename }}.tar.xz
+    dest=~/{{ iojs_filename }}.tar.xz
+  when: not iojs.stat.exists
+
+- name: io.js | unpack
+  unarchive:
+    copy=no
+    src=~/{{ iojs_filename }}.tar.xz
+    creates=~/{{ iojs_filename }}/
+    dest=~/
+
+- name: io.js | clean destination dir /usr/local/lib/$IOJS
+  file:
+    path=/usr/local/lib/{{ iojs_filename }}
+    state=absent
+  sudo: yes
+
+- name: io.js | copy to destination dir /usr/local/lib/$IOJS
+  shell: /bin/cp -R /home/{{ ansible_user_id }}/{{ iojs_filename }} /usr/local/lib/
+    creates=/usr/local/lib/{{ iojs_filename }}
+  sudo: yes
+
+- name: io.js | clean symlinks
+  file:
+    path=/usr/local/bin/{{ item }}
+    state=absent
+  with_items:
+    - node
+    - iojs
+    - npm
+    - node-gyp
+  sudo: yes
+
+- name: io.js | create symlinks
+  file:
+    path=/usr/local/bin/{{ item }}
+    state=link
+    src=/usr/local/lib/{{ iojs_filename }}/bin/{{ item }}
+  with_items:
+    - node
+    - iojs
+    - npm
+  sudo: yes
