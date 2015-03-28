@@ -1,2 +1,7 @@
 ---
 ansible_ssh_user: root
+
+bot_name: hubot_marshall
+deploy_user: deploy
+bot_root: /home/{{ deploy_user }}/{{bot_name}}
+bin_dir: "{{ bot_root }}/bin"

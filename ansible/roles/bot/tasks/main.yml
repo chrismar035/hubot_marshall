@@ -1,40 +1,39 @@
 ---
 - name: Create repo destination
-  file: path=/home/deploy/hubot_marshall
+  file: path={{ bot_root }}
         state=directory
-        owner=deploy
+        owner={{ deploy_user }}
         group=staff
   sudo: yes
 
 - name: Update code
   git: repo=git://github.com/chrismar035/hubot_marshall.git
-       dest=/home/deploy/hubot_marshall/
+       dest={{ bot_root }}
        accept_hostkey=true
        version=master
-  sudo_user: deploy
+  sudo_user: "{{ deploy_user }}"
 
 - name: Install app node dependencies
-  npm: path=/home/deploy/hubot_marshall/
+  npm: path={{ bot_root }}
        state=latest
   sudo: yes
 
 - name: Create .hubotrc file
   sudo: yes
   template: src=hubotrc.j2
-            dest=/home/deploy/hubot_marshall/bin/.hubotrc
+            dest={{ bin_dir }}/.hubotrc
             force=yes
             mode=755
-            owner=deploy
+            owner={{ deploy_user }}
 
 - name: Create daemon executable
   sudo: yes
   copy: src=daemon.sh
-        dest=/home/deploy/hubot_marshall/bin/daemon.sh
-        owner=deploy
+        dest={{ bin_dir }}/daemon.sh
+        owner={{ deploy_user }}
         mode="u+rwx"
 
 - name: Restart Hubot
-  sudo_user: deploy
+  sudo_user: "{{ deploy_user }}"
   command: bin/daemon.sh restart
-  args:
-    chdir: /home/deploy/hubot_marshall
+           chdir={{ bot_root }}
